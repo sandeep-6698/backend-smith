@@ -18,11 +18,46 @@ function generateValidations(schema: Record<string, Field>, parentKey = '', requ
 
             if (typeof type === 'string') {
                 if (type === 'String') {
-                    validationLine += `.isString().withMessage('${fieldKey} must be a string')`;
+                    validationLine += `.isArray().withMessage('${fieldKey} must be an array')`;
+                    validationLine += `.bail()`;
+                    if (value.enum) {
+                        validationLine += `.custom((value) => {
+                                                if (value.some(item => ["${value.enum.join('", "')}"].includes(item))) {
+                                                    throw new Error('Each item in ${fieldKey} must be in [${value.enum.join(', ')}].');
+                                                }
+                                                return true;
+                                            })
+                                        `;
+                    }
+                    else {
+
+                        validationLine += `.custom((value) => {
+                                                if (value.some(item => typeof item !== 'string')) {
+                                                    throw new Error('Each item in ${fieldKey} must be a string.');
+                                                }
+                                                return true;
+                                            })
+                                        `;
+                    }
                 } else if (type === 'Number') {
-                    validationLine += `.isNumeric().withMessage('${fieldKey} must be a number')`;
+                    validationLine += `.isArray().withMessage('${fieldKey} must be an array')`;
+                    validationLine += `.bail()`;
+                    validationLine += `.custom((value) => {
+                                            if (value.some(item => typeof item !== 'number')) {
+                                                throw new Error('Each item in ${fieldKey} must be a string.');
+                                            }
+                                            return true;
+                                        })
+                                    `;
                 } else if (type === 'Boolean') {
-                    validationLine += `.isBoolean().withMessage('${fieldKey} must be a boolean')`;
+                    validationLine += `.isArray().withMessage('${fieldKey} must be an array')`;
+                    validationLine += `.custom((value) => {
+                                            if (value.some(item => typeof item !== 'boolean')) {
+                                                throw new Error('Each item in ${fieldKey} must be a string.');
+                                            }
+                                            return true;
+                                        })
+                                    `;
                 }
             } else if (typeof type === 'object') {
                 // For nested array of objects
@@ -32,6 +67,15 @@ function generateValidations(schema: Record<string, Field>, parentKey = '', requ
         } else if (typeof value.type === 'string') {
             if (value.type === 'String') {
                 validationLine += `.isString().withMessage('${fieldKey} must be a string')`;
+                if (value.enum) {
+                    validationLine += `.custom((value) => {
+                                                if (["${value.enum.join('", "')}"].includes(value)) {
+                                                    throw new Error('${fieldKey} must be in [${value.enum.join(', ')}].');
+                                                }
+                                                return true;
+                                            })
+                                        `;
+                }
             } else if (value.type === 'Number') {
                 validationLine += `.isNumeric().withMessage('${fieldKey} must be a number')`;
             } else if (value.type === 'Boolean') {

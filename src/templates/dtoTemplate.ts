@@ -3,10 +3,10 @@ import { toPascalCase } from "../helper/toPascalCase"
 
 const toTypes = (fields: Record<string, any>) => {
     return `${Object.entries(fields).map(([key, value]) => {
-        const { type, required } = value;
+        const { type, required, enum: enumTypes } = value;
         const isArray = Array.isArray(type)
-        const parsedType = typeof type == 'string' ? type.toLowerCase() : isArray && typeof type[0] == 'string' ? `${type[0].toLowerCase()}` : `I${toPascalCase(key)}`
-        return `${key}${required ? '' : '?'}: ${parsedType}${isArray ? '[]': ''}`
+        const parsedType = typeof type == 'string' ? enumTypes ? `"${enumTypes.join('" | "')}"` : type.toLowerCase() : isArray && typeof type[0] == 'string' ? enumTypes ? `Array<"${enumTypes.join('" | "')}">` : `${type[0].toLowerCase()}` : `I${toPascalCase(key)}`
+        return `${key}${required ? '' : '?'}: ${parsedType}${isArray && !enumTypes ? '[]' : ''}`
     }).join(';\n')}`
 }
 
@@ -25,7 +25,7 @@ export const dtoTemplate = (module: string, fields: string[]) => {
                     }
                 `)
             }
-            else if(typeof type === 'object' && !Array.isArray(type)) {
+            else if (typeof type === 'object' && !Array.isArray(type)) {
                 const name = toPascalCase(field);
                 types.push(`
                     export interface I${name} {

@@ -19,13 +19,23 @@ function generateValidations(schema, parentKey, required) {
             var type = value.type[0];
             if (typeof type === 'string') {
                 if (type === 'String') {
-                    validationLine += ".isString().withMessage('".concat(fieldKey, " must be a string')");
+                    validationLine += ".isArray().withMessage('".concat(fieldKey, " must be an array')");
+                    validationLine += ".bail()";
+                    if (value.enum) {
+                        validationLine += ".custom((value) => {\n                                                if (value.some(item => [\"".concat(value.enum.join('", "'), "\"].includes(item))) {\n                                                    throw new Error('Each item in ").concat(fieldKey, " must be in [").concat(value.enum.join(', '), "].');\n                                                }\n                                                return true;\n                                            })\n                                        ");
+                    }
+                    else {
+                        validationLine += ".custom((value) => {\n                                                if (value.some(item => typeof item !== 'string')) {\n                                                    throw new Error('Each item in ".concat(fieldKey, " must be a string.');\n                                                }\n                                                return true;\n                                            })\n                                        ");
+                    }
                 }
                 else if (type === 'Number') {
-                    validationLine += ".isNumeric().withMessage('".concat(fieldKey, " must be a number')");
+                    validationLine += ".isArray().withMessage('".concat(fieldKey, " must be an array')");
+                    validationLine += ".bail()";
+                    validationLine += ".custom((value) => {\n                                            if (value.some(item => typeof item !== 'number')) {\n                                                throw new Error('Each item in ".concat(fieldKey, " must be a string.');\n                                            }\n                                            return true;\n                                        })\n                                    ");
                 }
                 else if (type === 'Boolean') {
-                    validationLine += ".isBoolean().withMessage('".concat(fieldKey, " must be a boolean')");
+                    validationLine += ".isArray().withMessage('".concat(fieldKey, " must be an array')");
+                    validationLine += ".custom((value) => {\n                                            if (value.some(item => typeof item !== 'boolean')) {\n                                                throw new Error('Each item in ".concat(fieldKey, " must be a string.');\n                                            }\n                                            return true;\n                                        })\n                                    ");
                 }
             }
             else if (typeof type === 'object') {
@@ -37,6 +47,9 @@ function generateValidations(schema, parentKey, required) {
         else if (typeof value.type === 'string') {
             if (value.type === 'String') {
                 validationLine += ".isString().withMessage('".concat(fieldKey, " must be a string')");
+                if (value.enum) {
+                    validationLine += ".custom((value) => {\n                                                if ([\"".concat(value.enum.join('", "'), "\"].includes(value)) {\n                                                    throw new Error('").concat(fieldKey, " must be in [").concat(value.enum.join(', '), "].');\n                                                }\n                                                return true;\n                                            })\n                                        ");
+                }
             }
             else if (value.type === 'Number') {
                 validationLine += ".isNumeric().withMessage('".concat(fieldKey, " must be a number')");

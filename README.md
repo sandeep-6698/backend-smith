@@ -3,6 +3,9 @@
 
 **Backend Smith** is a custom CLI tool, invoked using the command `bs`, designed to help automate the creation of various components such as modules, schemas, routes, services, controllers, validations, and DTOs for an Express.js backend. It simplifies backend structure generation.
 
+## What's new
+Bug fixes, enum support and auto-formatting for generated files 
+
 ## Table of Contents
 
 -   [Installation](#installation)
@@ -61,7 +64,8 @@ Backend Smith supports the following operations:
 You can also pass fields as an array or object:
 
 -   **Array**: Pass multiple fields as separate arguments (e.g., `username:String age:Number email:String`).
--   **Object**: Pass fields in the format `{ fieldName: fieldType }` (e.g., `{ username: String, age: Number, email: String }`).
+-   **Object**: Pass fields in the format `{ fieldName: fieldType }` (e.g., `{ username:String, age:Number, email:String }`).
+-   **enum**: Pass fields in the format `fieldName:fieldTypes` (e.g., `role:USER|ADMIN`).
 
 To mark a field as required, prepend the field name with an asterisk (e.g., `*username:String`).
 
@@ -73,11 +77,11 @@ To mark a field as required, prepend the field name with an asterisk (e.g., `*us
     
 2.  **Create a module with fields**:
     
-    `bs create:module user *username:String age:Number *email:String` 
+    `bs create:module user *username:String age:Number *email:String *role:USER|ADMIN` 
     
 3.  **Create a schema**:
     
-    `bs create:schema user *username:String age:Number *email:String` 
+    `bs create:schema user *username:String age:Number *email:String *role:USER|ADMIN` 
     
 4.  **Create a route**:
     
@@ -93,11 +97,11 @@ To mark a field as required, prepend the field name with an asterisk (e.g., `*us
     
 7.  **Create validation for fields**:
     
-    `bs create:validation user *username:String age:Number *email:String` 
+    `bs create:validation user *username:String age:Number *email:String *role:USER|ADMIN` 
     
 8.  **Create a Data Transfer Object (DTO)**:
     
-    `bs create:dto user *username:String age:Number *email:String` 
+    `bs create:dto user *username:String age:Number *email:String *role:USER|ADMIN` 
     
 
 ## Error Handling

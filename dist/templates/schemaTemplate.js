@@ -12,11 +12,16 @@ var schemaTemplate = function (module, fields) {
         Object.entries(fields).forEach(function (_a) {
             var key = _a[0], field = _a[1];
             if (typeof field.type === 'string') {
-                result += "".concat(key, ": { type: ").concat(field.type, ", required: ").concat(field.required, "},").concat('\n');
+                result += "".concat(key, ": { type: ").concat(field.type, ", required: ").concat(field.required, " ").concat(field.enum ? ", enum: [\"".concat(field.enum.join('", "'), "\"]") : '', "},").concat('\n');
             }
             else if (Array.isArray(field.type)) {
                 if (typeof field.type[0] === 'string') {
-                    result += "".concat(key, ": [{ type: ").concat(field.type[0], ", required: ").concat(field.required, "}],").concat('\n');
+                    if (field.enum) {
+                        result += "".concat(key, ": { type: [").concat(field.type[0], "], required: ").concat(field.required, " ").concat(field.enum ? ", enum: [\"".concat(field.enum.join('", "'), "\"]") : '', "},").concat('\n');
+                    }
+                    else {
+                        result += "".concat(key, ": [{ type: ").concat(field.type[0], ", required: ").concat(field.required, "}],").concat('\n');
+                    }
                 }
                 else {
                     var name_1 = (0, toPascalCase_1.toPascalCase)(key);
@@ -34,6 +39,6 @@ var schemaTemplate = function (module, fields) {
         return result;
     };
     var schemaString = toSchema(parsedFields);
-    return "\n        import mongoose from \"mongoose\";\n        import { type I".concat(name, " ").concat(types.length ? ",".concat(types.join(', '), " ") : '', " } from \"./").concat(module, ".dto\";\n        const Schema = mongoose.Schema;\n\n        const ").concat(name, "Schema = new Schema<I").concat(name, ">(").concat(schemaString, ", { timestamps: true });\n    \n        export default mongoose.model<I").concat(name, ">(\"").concat(module, "\", ").concat(name, "Schema);\n    ");
+    return "\n        import mongoose from \"mongoose\";\n        import { type I".concat(name, " ").concat(types.length ? ",".concat(types.join(', '), " ") : '', " } from \"./").concat(module, ".dto\";\n        \n        const Schema = mongoose.Schema;\n\n        const ").concat(name, "Schema = new Schema<I").concat(name, ">(").concat(schemaString, ", { timestamps: true });\n    \n        export default mongoose.model<I").concat(name, ">(\"").concat(module, "\", ").concat(name, "Schema);\n    ");
 };
 exports.schemaTemplate = schemaTemplate;

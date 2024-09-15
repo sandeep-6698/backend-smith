@@ -6,10 +6,10 @@ var toPascalCase_1 = require("../helper/toPascalCase");
 var toTypes = function (fields) {
     return "".concat(Object.entries(fields).map(function (_a) {
         var key = _a[0], value = _a[1];
-        var type = value.type, required = value.required;
+        var type = value.type, required = value.required, enumTypes = value.enum;
         var isArray = Array.isArray(type);
-        var parsedType = typeof type == 'string' ? type.toLowerCase() : isArray && typeof type[0] == 'string' ? "".concat(type[0].toLowerCase()) : "I".concat((0, toPascalCase_1.toPascalCase)(key));
-        return "".concat(key).concat(required ? '' : '?', ": ").concat(parsedType).concat(isArray ? '[]' : '');
+        var parsedType = typeof type == 'string' ? enumTypes ? "\"".concat(enumTypes.join('" | "'), "\"") : type.toLowerCase() : isArray && typeof type[0] == 'string' ? enumTypes ? "Array<\"".concat(enumTypes.join('" | "'), "\">") : "".concat(type[0].toLowerCase()) : "I".concat((0, toPascalCase_1.toPascalCase)(key));
+        return "".concat(key).concat(required ? '' : '?', ": ").concat(parsedType).concat(isArray && !enumTypes ? '[]' : '');
     }).join(';\n'));
 };
 var dtoTemplate = function (module, fields) {

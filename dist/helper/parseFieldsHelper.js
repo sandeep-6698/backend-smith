@@ -20,23 +20,32 @@ var getType = function (field) {
     if (['[', '{'].includes(value.charAt(0))) {
         var fields = value.slice(1, -1);
         if (possibleFields[fields]) {
-            return [fields];
+            return { type: [fields] };
         }
         else {
+            if (value.includes('|')) {
+                return { type: ["String"], enum: fields.split("|") };
+            }
             var result = (0, exports.parseFieldsHelper)(fields.split(' '));
             if (value.charAt(0) == '[')
-                return [result];
-            return result;
+                return { type: [result] };
+            return { type: result };
         }
     }
-    return value;
+    if (value.includes('|')) {
+        return { type: "String", enum: value.split("|") };
+    }
+    return { type: value };
 };
 var parseFieldsHelper = function (fields) {
     var result = {};
     fields.forEach(function (field) {
         var _a = getName(field), name = _a.name, required = _a.required;
-        var type = getType(field);
+        var _b = getType(field), type = _b.type, enumTypes = _b.enum;
         result[name] = { type: type, required: required };
+        if (enumTypes) {
+            result[name].enum = enumTypes;
+        }
     });
     return result;
 };

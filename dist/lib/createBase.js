@@ -44,14 +44,15 @@ var simple_git_1 = __importDefault(require("simple-git"));
 var path_1 = __importDefault(require("path"));
 var fs_1 = __importDefault(require("fs"));
 var logger_1 = __importDefault(require("./logger"));
-var child_process_1 = require("child_process");
+var runCommandHelper_1 = require("../helper/runCommandHelper");
+var node_process_1 = require("node:process");
 var repo = "https://github.com/sandeep-6698/backend-smith-express";
 var createBase = function (name) { return __awaiter(void 0, void 0, void 0, function () {
-    var destination, git, error_1;
+    var destination, git, error_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 2, , 3]);
+                _a.trys.push([0, 7, , 8]);
                 destination = path_1.default.join(process.cwd(), name);
                 // Check if the folder already exists
                 if (!fs_1.default.existsSync(destination)) {
@@ -60,27 +61,39 @@ var createBase = function (name) { return __awaiter(void 0, void 0, void 0, func
                 }
                 else {
                     logger_1.default.warn("Folder already exists: ".concat(name));
+                    return [2 /*return*/];
                 }
                 git = (0, simple_git_1.default)();
                 return [4 /*yield*/, git.clone(repo, destination)];
             case 1:
                 _a.sent();
                 logger_1.default.info("Application created");
-                logger_1.default.info("Installing packages...");
-                (0, child_process_1.exec)("cd ".concat(destination, " && pnpm install"), function (err) {
-                    if (err) {
-                        logger_1.default.error(err);
-                        return;
-                    }
-                    logger_1.default.info("Ready to use");
-                });
-                return [3 /*break*/, 3];
+                (0, node_process_1.chdir)(destination);
+                _a.label = 2;
             case 2:
+                _a.trys.push([2, 4, , 6]);
+                logger_1.default.info("Installing packages using pnpm...");
+                return [4 /*yield*/, (0, runCommandHelper_1.runCommandHelper)("pnpm install")];
+            case 3:
+                _a.sent();
+                return [3 /*break*/, 6];
+            case 4:
                 error_1 = _a.sent();
-                console.log(error_1);
+                logger_1.default.info("Installing packages using pnpm failed");
+                logger_1.default.info("Triying with npm...");
+                return [4 /*yield*/, (0, runCommandHelper_1.runCommandHelper)("npm install")];
+            case 5:
+                _a.sent();
+                return [3 /*break*/, 6];
+            case 6:
+                logger_1.default.info("Ready to use");
+                return [3 /*break*/, 8];
+            case 7:
+                error_2 = _a.sent();
+                console.log(error_2);
                 logger_1.default.error("Faile to setup repo");
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
+                return [3 /*break*/, 8];
+            case 8: return [2 /*return*/];
         }
     });
 }); };

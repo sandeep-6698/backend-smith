@@ -2,7 +2,8 @@ import simpleGit from "simple-git";
 import path from 'path';
 import fs from 'fs';
 import logger from "./logger";
-import { exec } from 'child_process';
+import { runCommandHelper } from "../helper/runCommandHelper";
+import { chdir } from 'node:process'
 
 const repo = "https://github.com/sandeep-6698/backend-smith-express"
 
@@ -15,18 +16,21 @@ export const createBase = async (name: string) => {
             logger.info(`Created: ${name}`);
         } else {
             logger.warn(`Folder already exists: ${name}`);
+            return;
         }
         const git = simpleGit();
         await git.clone(repo, destination);
         logger.info("Application created");
-        logger.info("Installing packages...");
-        exec(`cd ${destination} && pnpm install`, (err: any) => {
-            if (err) {
-                logger.error(err)
-                return;
-            }
-            logger.info("Ready to use");
-        })
+        chdir(destination)
+        try {
+            logger.info("Installing packages using pnpm...");
+            await runCommandHelper(`pnpm install`)
+        } catch (error) {
+            logger.info("Installing packages using pnpm failed");
+            logger.info("Triying with npm...");
+            await runCommandHelper(`npm install`)
+        }
+        logger.info("Ready to use");
     } catch (error) {
         console.log(error)
         logger.error("Faile to setup repo");

@@ -11,11 +11,16 @@ export const schemaTemplate = (module: string, fields: string[]) => {
         let result: string = '{';
         Object.entries(fields).forEach(([key, field]) => {
             if (typeof field.type === 'string') {
-                result += `${key}: { type: ${field.type}, required: ${field.required}},${'\n'}`
+                result += `${key}: { type: ${field.type}, required: ${field.required} ${field.enum ? `, enum: ["${field.enum.join('", "')}"]` : ''}},${'\n'}`
             }
             else if (Array.isArray(field.type)) {
                 if (typeof field.type[0] === 'string') {
-                    result += `${key}: [{ type: ${field.type[0]}, required: ${field.required}}],${'\n'}`
+                    if (field.enum) {
+                        result += `${key}: { type: [${field.type[0]}], required: ${field.required} ${field.enum ? `, enum: ["${field.enum.join('", "')}"]` : ''}},${'\n'}`
+                    }
+                    else {
+                        result += `${key}: [{ type: ${field.type[0]}, required: ${field.required}}],${'\n'}`
+                    }
                 }
                 else {
                     const name = toPascalCase(key)
@@ -39,6 +44,7 @@ export const schemaTemplate = (module: string, fields: string[]) => {
     return `
         import mongoose from "mongoose";
         import { type I${name} ${types.length ? `,${types.join(', ')} ` : ''} } from "./${module}.dto";
+        
         const Schema = mongoose.Schema;
 
         const ${name}Schema = new Schema<I${name}>(${schemaString}, { timestamps: true });

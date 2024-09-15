@@ -1,4 +1,4 @@
-export type Field = { type: string | string[] | Array<Record<string, Field>> | Record<string, Field>, required: boolean }
+export type Field = { type: string | string[] | Array<Record<string, Field>> | Record<string, Field>, required: boolean, enum?: string[] }
 
 const possibleFields: Record<string, string> = {
     String: 'string',
@@ -22,24 +22,33 @@ const getType = (field: string) => {
     if (['[', '{'].includes(value.charAt(0))) {
         const fields = value.slice(1, -1);
         if (possibleFields[fields]) {
-            return [fields]
+            return { type: [fields] }
         }
         else {
+            if (value.includes('|')) {
+                return { type: ["String"], enum: fields.split("|") }
+            }
             const result = parseFieldsHelper(fields.split(' '));
             if (value.charAt(0) == '[')
-                return [result]
-            return result;
+                return { type: [result] }
+            return { type: result };
         }
     }
-    return value
+    if (value.includes('|')) {
+        return { type: "String", enum: value.split("|") }
+    }
+    return { type: value }
 }
 
 export const parseFieldsHelper = (fields: string[]): Record<string, Field> => {
     const result: Record<string, Field> = {};
     fields.forEach(field => {
         const { name, required } = getName(field)
-        const type = getType(field);
+        const { type, enum: enumTypes } = getType(field);
         result[name] = { type: type, required };
+        if (enumTypes) {
+            result[name].enum = enumTypes
+        }
     })
     return result;
 }
