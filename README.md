@@ -117,7 +117,10 @@ To mark a field as required, prepend the field name with an asterisk (e.g., `*us
 -   If an invalid operation is provided, the CLI will log:
     
     `Invalid <operation> operation` 
-    
+- Bad pattern
+    When using special characters like `[]`, `{}` and `|` in the terminal, make sure to escape them or wrap the entire field in quotes.
+      Example:
+        `bs create:schema test "tags:[String]" "profile:{bio:String website:String}" "*role:USER|ADMIN" "addresses:[{street:String *city:String}]"`
 
 ## Contributing
 

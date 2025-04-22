@@ -1,7 +1,7 @@
-import path from "path";
 import fs from 'fs';
-import { getAbsolutePath } from "./getAbsolutePath";
+import path from "path";
 import logger from "../lib/logger";
+import { getAbsolutePath } from "./getAbsolutePath";
 import { runCommandHelper } from "./runCommandHelper";
 
 export const createFileHepler = (module: string, type: string, content: string) => {
@@ -10,7 +10,7 @@ export const createFileHepler = (module: string, type: string, content: string) 
   if (!fs.existsSync(filePath)) {
     fs.writeFileSync(filePath, content);
     logger.info(`Created ${type}`);
-    runCommandHelper(`npx prettier . -w`)
+    runCommandHelper(`npx prettier ${folderPath} -w`);
   } else {
     logger.warn(`File already exists: ${filePath}`);
   }

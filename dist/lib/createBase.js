@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -40,19 +40,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createBase = void 0;
-var simple_git_1 = __importDefault(require("simple-git"));
-var path_1 = __importDefault(require("path"));
 var fs_1 = __importDefault(require("fs"));
-var logger_1 = __importDefault(require("./logger"));
-var runCommandHelper_1 = require("../helper/runCommandHelper");
 var node_process_1 = require("node:process");
+var path_1 = __importDefault(require("path"));
+var simple_git_1 = __importDefault(require("simple-git"));
+var runCommandHelper_1 = require("../helper/runCommandHelper");
+var logger_1 = __importDefault(require("./logger"));
 var repo = "https://github.com/sandeep-6698/backend-smith-express";
 var createBase = function (name) { return __awaiter(void 0, void 0, void 0, function () {
-    var destination, git, error_1, error_2;
+    var destination, git, newGit, error_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 7, , 8]);
+                _a.trys.push([0, 8, , 9]);
                 destination = path_1.default.join(process.cwd(), name);
                 // Check if the folder already exists
                 if (!fs_1.default.existsSync(destination)) {
@@ -69,31 +69,39 @@ var createBase = function (name) { return __awaiter(void 0, void 0, void 0, func
                 _a.sent();
                 logger_1.default.info("Application created");
                 (0, node_process_1.chdir)(destination);
-                _a.label = 2;
+                fs_1.default.rmSync(path_1.default.join(destination, ".git"), {
+                    recursive: true,
+                    force: true,
+                });
+                newGit = (0, simple_git_1.default)(destination);
+                return [4 /*yield*/, newGit.init()];
             case 2:
-                _a.trys.push([2, 4, , 6]);
+                _a.sent();
+                _a.label = 3;
+            case 3:
+                _a.trys.push([3, 5, , 7]);
                 logger_1.default.info("Installing packages using pnpm...");
                 return [4 /*yield*/, (0, runCommandHelper_1.runCommandHelper)("pnpm install")];
-            case 3:
-                _a.sent();
-                return [3 /*break*/, 6];
             case 4:
+                _a.sent();
+                return [3 /*break*/, 7];
+            case 5:
                 error_1 = _a.sent();
                 logger_1.default.info("Installing packages using pnpm failed");
                 logger_1.default.info("Triying with npm...");
                 return [4 /*yield*/, (0, runCommandHelper_1.runCommandHelper)("npm install")];
-            case 5:
-                _a.sent();
-                return [3 /*break*/, 6];
             case 6:
-                logger_1.default.info("Ready to use");
-                return [3 /*break*/, 8];
+                _a.sent();
+                return [3 /*break*/, 7];
             case 7:
+                logger_1.default.info("Ready to use");
+                return [3 /*break*/, 9];
+            case 8:
                 error_2 = _a.sent();
                 console.log(error_2);
                 logger_1.default.error("Faile to setup repo");
-                return [3 /*break*/, 8];
-            case 8: return [2 /*return*/];
+                return [3 /*break*/, 9];
+            case 9: return [2 /*return*/];
         }
     });
 }); };
