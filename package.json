@@ -1,24 +1,42 @@
 {
   "name": "backend-smith",
-  "version": "1.0.6",
+  "version": "2.0.0",
+  "description": "CLI that scaffolds a production-ready Express.js + TypeScript backend and generates full CRUD modules (schema, DTO, service, controller, route, validation) with Swagger/OpenAPI docs, from a simple field syntax. Supports Mongoose, TypeORM, or Prisma.",
   "main": "./dist/index.js",
+  "bin": {
+    "bs": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "template"
+  ],
   "scripts": {
     "build": "tsc && chmod +x ./dist/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sandeep-6698/backend-smith"
+    "url": "git+https://github.com/sandeep-6698/backend-smith.git"
   },
-  "bin": {
-    "bs": "./dist/index.js"
+  "homepage": "https://github.com/sandeep-6698/backend-smith#readme",
+  "bugs": {
+    "url": "https://github.com/sandeep-6698/backend-smith/issues"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "keywords": [
     "backend-smith",
     "cli-tool",
     "express-generator",
+    "express-boilerplate",
     "node-cli",
     "code-generator",
+    "crud-generator",
+    "api-generator",
+    "rest-api",
     "backend-scaffolding",
+    "scaffolding-tool",
+    "boilerplate",
     "module-generator",
     "schema-creator",
     "route-generator",
@@ -26,27 +44,31 @@
     "controller-generator",
     "validation-generator",
     "dto-creator",
+    "swagger",
+    "openapi",
+    "typescript",
+    "mongoose",
+    "typeorm",
+    "prisma",
+    "orm",
     "nodejs-tools",
     "backend-automation",
-    "express-tools",
     "node-backend",
-    "custom-cli",
-    "backend-development",
-    "express-module",
-    "express-scaffolding"
+    "backend-development"
   ],
   "author": "sandeep.6698",
   "license": "ISC",
-  "description": "A CLI tool for automating backend component generation in Express.js, including modules, schemas, routes, services, and more.",
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
+    "prompts": "^2.4.2",
     "simple-git": "^3.25.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
   "devDependencies": {
     "@types/node": "^22.5.0",
+    "@types/prompts": "^2.4.9",
     "tsx": "^4.17.0"
   }
 }

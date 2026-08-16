@@ -6,11 +6,18 @@ function generateValidations(schema: Record<string, Field>, parentKey = '', requ
     let validationCode = '\n';
 
     for (const [key, value] of Object.entries(schema)) {
-        const fieldKey = parentKey ? `${parentKey}.${key}` : key;
+        const baseFieldKey = parentKey ? `${parentKey}.${key}` : key;
+        const fieldKey = value.ref ? `${baseFieldKey}Id` : baseFieldKey;
         let validationLine = ` body('${fieldKey}')`;
 
         if (value.required && required) {
             validationLine += `.notEmpty().withMessage('${fieldKey} is required')`;
+        }
+
+        if (value.ref) {
+            validationLine += `.isString().withMessage('${fieldKey} must be a string')`;
+            validationCode += validationLine.trim() + `,\n`;
+            continue;
         }
 
         if (Array.isArray(value.type)) {
@@ -21,8 +28,8 @@ function generateValidations(schema: Record<string, Field>, parentKey = '', requ
                     validationLine += `.isArray().withMessage('${fieldKey} must be an array')`;
                     validationLine += `.bail()`;
                     if (value.enum) {
-                        validationLine += `.custom((value) => {
-                                                if (value.some(item => ["${value.enum.join('", "')}"].includes(item))) {
+                        validationLine += `.custom((value: any[]) => {
+                                                if (value.some((item: any) => !["${value.enum.join('", "')}"].includes(item))) {
                                                     throw new Error('Each item in ${fieldKey} must be in [${value.enum.join(', ')}].');
                                                 }
                                                 return true;
@@ -31,8 +38,8 @@ function generateValidations(schema: Record<string, Field>, parentKey = '', requ
                     }
                     else {
 
-                        validationLine += `.custom((value) => {
-                                                if (value.some(item => typeof item !== 'string')) {
+                        validationLine += `.custom((value: any[]) => {
+                                                if (value.some((item: any) => typeof item !== 'string')) {
                                                     throw new Error('Each item in ${fieldKey} must be a string.');
                                                 }
                                                 return true;
@@ -42,8 +49,8 @@ function generateValidations(schema: Record<string, Field>, parentKey = '', requ
                 } else if (type === 'Number') {
                     validationLine += `.isArray().withMessage('${fieldKey} must be an array')`;
                     validationLine += `.bail()`;
-                    validationLine += `.custom((value) => {
-                                            if (value.some(item => typeof item !== 'number')) {
+                    validationLine += `.custom((value: any[]) => {
+                                            if (value.some((item: any) => typeof item !== 'number')) {
                                                 throw new Error('Each item in ${fieldKey} must be a string.');
                                             }
                                             return true;
@@ -51,8 +58,8 @@ function generateValidations(schema: Record<string, Field>, parentKey = '', requ
                                     `;
                 } else if (type === 'Boolean') {
                     validationLine += `.isArray().withMessage('${fieldKey} must be an array')`;
-                    validationLine += `.custom((value) => {
-                                            if (value.some(item => typeof item !== 'boolean')) {
+                    validationLine += `.custom((value: any[]) => {
+                                            if (value.some((item: any) => typeof item !== 'boolean')) {
                                                 throw new Error('Each item in ${fieldKey} must be a string.');
                                             }
                                             return true;
@@ -69,7 +76,7 @@ function generateValidations(schema: Record<string, Field>, parentKey = '', requ
                 validationLine += `.isString().withMessage('${fieldKey} must be a string')`;
                 if (value.enum) {
                     validationLine += `.custom((value) => {
-                                                if (["${value.enum.join('", "')}"].includes(value)) {
+                                                if (!["${value.enum.join('", "')}"].includes(value)) {
                                                     throw new Error('${fieldKey} must be in [${value.enum.join(', ')}].');
                                                 }
                                                 return true;

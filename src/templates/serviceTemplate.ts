@@ -33,9 +33,13 @@ export const serviceTemplate = (module: string) => {
                 return result;
             };
 
-            export const getAll${name} = async () => {
-                const result = await ${name}Schema.find({}).lean();
+            export const getAll${name} = async (options?: { skip?: number; limit?: number }) => {
+                const result = await ${name}Schema.find({}, null, options).lean();
                 return result;
+            };
+
+            export const count${name} = async () => {
+                return await ${name}Schema.countDocuments();
             };
 `
 }

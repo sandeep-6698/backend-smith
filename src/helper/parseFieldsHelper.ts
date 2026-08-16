@@ -6,6 +6,7 @@ export type Field = {
     | Record<string, Field>;
   required: boolean;
   enum?: string[];
+  ref?: string;
 };
 
 const possibleFields: Record<string, string> = {
@@ -29,6 +30,12 @@ const getName = (field: string) => {
 const getType = (field: string) => {
   const firstColonIndex = field.indexOf(":");
   const value = field.substring(firstColonIndex + 1);
+
+  const refMatch = value.match(/^ref\((\w+)\)$/);
+  if (refMatch) {
+    return { type: "ref", ref: refMatch[1] };
+  }
+
   if (["[", "{"].includes(value.charAt(0))) {
     const fields = value.slice(1, -1);
     if (possibleFields[fields]) {
@@ -52,10 +59,13 @@ export const parseFieldsHelper = (fields: string[]): Record<string, Field> => {
   const result: Record<string, Field> = {};
   fields.forEach((field) => {
     const { name, required } = getName(field);
-    const { type, enum: enumTypes } = getType(field);
+    const { type, enum: enumTypes, ref } = getType(field);
     result[name] = { type: type, required };
     if (enumTypes) {
       result[name].enum = enumTypes;
+    }
+    if (ref) {
+      result[name].ref = ref;
     }
   });
   return result;

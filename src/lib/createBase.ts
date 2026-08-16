@@ -2,10 +2,10 @@ import fs from "fs";
 import { chdir } from "node:process";
 import path from "path";
 import simpleGit from "simple-git";
+import { getTemplatePath } from "../helper/getTemplatePath";
 import { runCommandHelper } from "../helper/runCommandHelper";
+import { configureProject } from "./configureProject";
 import logger from "./logger";
-
-const repo = "https://github.com/sandeep-6698/backend-smith-express";
 
 export const createBase = async (name: string) => {
   try {
@@ -18,16 +18,15 @@ export const createBase = async (name: string) => {
       logger.warn(`Folder already exists: ${name}`);
       return;
     }
-    const git = simpleGit();
-    await git.clone(repo, destination);
+    fs.cpSync(getTemplatePath(), destination, { recursive: true });
     logger.info("Application created");
     chdir(destination);
-    fs.rmSync(path.join(destination, ".git"), {
-      recursive: true,
-      force: true,
-    });
-    const newGit = simpleGit(destination);
-    await newGit.init();
+
+    const git = simpleGit(destination);
+    await git.init();
+
+    await configureProject(destination);
+
     try {
       logger.info("Installing packages using pnpm...");
       await runCommandHelper(`pnpm install`);
@@ -36,6 +35,21 @@ export const createBase = async (name: string) => {
       logger.info("Triying with npm...");
       await runCommandHelper(`npm install`);
     }
+
+    if (fs.existsSync(path.join(destination, "prisma/schema.prisma"))) {
+      try {
+        await runCommandHelper(`npx prisma generate`);
+      } catch (error) {
+        logger.warn("Failed to run `prisma generate`, run it manually before starting the app.");
+      }
+    }
+
+    try {
+      await runCommandHelper(`npx prettier ${destination} -w`);
+    } catch (error) {
+      // best-effort formatting pass, safe to ignore failures
+    }
+
     logger.info("Ready to use");
   } catch (error) {
     console.log(error);

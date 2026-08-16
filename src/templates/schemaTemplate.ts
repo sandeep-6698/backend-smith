@@ -10,7 +10,10 @@ export const schemaTemplate = (module: string, fields: string[]) => {
     const toSchema = (fields: Record<string, Field>) => {
         let result: string = '{';
         Object.entries(fields).forEach(([key, field]) => {
-            if (typeof field.type === 'string') {
+            if (field.ref) {
+                result += `${key}Id: { type: Schema.Types.ObjectId, ref: "${field.ref}", required: ${field.required} } as any,${'\n'}`
+            }
+            else if (typeof field.type === 'string') {
                 result += `${key}: { type: ${field.type}, required: ${field.required} ${field.enum ? `, enum: ["${field.enum.join('", "')}"]` : ''}},${'\n'}`
             }
             else if (Array.isArray(field.type)) {

@@ -5,6 +5,7 @@ export const runCommandHelper = (command: string) => {
         exec(command, (error) => {
             if (error) {
                 rej(error)
+                return
             }
             res(true)
         })
